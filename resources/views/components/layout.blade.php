@@ -10,6 +10,7 @@
 <body>
     {{ $slot }}
     @vite('resources/js/app.js')
+    <script async src="https://unpkg.com/@material-tailwind/html@latest/scripts/ripple.js"></script>
 </body>
 
 </html>
