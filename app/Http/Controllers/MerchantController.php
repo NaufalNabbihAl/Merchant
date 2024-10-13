@@ -7,59 +7,63 @@ use Illuminate\Http\Request;
 
 class MerchantController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function registerForm()
     {
-        //
+        return view('merchant.register');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function register(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:merchants',
+            'password' => 'required',
+            'password_confirmation' => 'required|same:password'
+        ]);
+
+        Merchant::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password)
+        ]);
+
+        return redirect()->route('merchant.login');
+    }
+    public function loginForm()
+    {
+        return view('merchant.login');
+    }
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (auth('merchant')->attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('merchant.dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->withInput(request()->except('password'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function dashboard()
     {
-        //
+        return view('merchant.dashboard');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Merchant $merchant)
+    public function logout(Request $request)
     {
-        //
-    }
+        auth('merchant')->logout();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Merchant $merchant)
-    {
-        //
-    }
+        $request->session()->invalidate();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Merchant $merchant)
-    {
-        //
-    }
+        $request->session()->regenerateToken();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Merchant $merchant)
-    {
-        //
+        return redirect()->route('merchant.login');
     }
 }
