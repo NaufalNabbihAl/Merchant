@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('merchant_id')->nullable()->constrained('merchants')->index();
-            $table->foreignId('customer_id')->nullable()->constrained('customers')->index();
+            $table->unsignedBigInteger('merchant_id')->nullable()->index();
+            $table->unsignedBigInteger('customer_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
-            $table->longText('payload');
+            $table->text('payload');
             $table->integer('last_activity')->index();
         });
     }
+
 
     /**
      * Reverse the migrations.
